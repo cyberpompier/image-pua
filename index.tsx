@@ -1,13 +1,35 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import App from './App';
+// Note: React and ReactDOM are available globally from the scripts in index.html
+// We do not need to import them here when using the UMD/Babel Standalone setup.
 
+// Explicitly retrieve globals to avoid TS module errors and provide 'any' type for flexibility
+const React = (window as any).React;
+const ReactDOM = (window as any).ReactDOM;
+
+// --- Composant App intégré ---
+const App = () => {
+  return (
+    <main className="fixed inset-0 w-full h-full flex items-center justify-center bg-black">
+      <div className="relative w-full h-full max-w-screen-xl mx-auto flex items-center justify-center p-4">
+        {/* Image principale */}
+        <img
+          src="https://images.unsplash.com/photo-1620121692023-60c74613ca4d?q=80&w=1920&auto=format&fit=crop"
+          alt="App Content"
+          className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+          style={{ maxHeight: '90vh' }}
+        />
+      </div>
+    </main>
+  );
+};
+
+// --- Point d'entrée ---
 const rootElement = document.getElementById('root');
 
 if (!rootElement) {
   throw new Error("Could not find root element to mount to");
 }
 
+// In React 18 UMD, createRoot is available directly under ReactDOM
 const root = ReactDOM.createRoot(rootElement);
 
 root.render(
@@ -16,20 +38,15 @@ root.render(
   </React.StrictMode>
 );
 
-// PWA Service Worker Registration
+// --- Enregistrement du Service Worker ---
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    // Explicitly defining scope can help in some hosted environments
-    navigator.serviceWorker.register('./sw.js', { scope: './' })
+    navigator.serviceWorker.register('./sw.js')
       .then((registration) => {
-        console.log('SW registered:', registration);
+        console.log('SW registered successfully:', registration.scope);
       })
       .catch((error) => {
         console.warn('SW registration failed:', error);
-        // The error "Script origin does not match" usually means the server
-        // is serving sw.js from a different origin/port than index.html.
-        // This is common in some preview environments (like CodeSandbox/StackBlitz).
-        // It usually resolves itself on a real production static host.
       });
   });
 }
