@@ -1,9 +1,10 @@
 // Simple cache-first strategy for a basic PWA
-const CACHE_NAME = 'monoview-cache-v2';
+const CACHE_NAME = 'monoview-cache-v3';
 const urlsToCache = [
   './',
   './index.html',
-  './manifest.json'
+  './manifest.json',
+  './icons/logo.svg'
 ];
 
 self.addEventListener('install', (event) => {
@@ -30,8 +31,7 @@ self.addEventListener('fetch', (event) => {
           return response;
         }
         return fetch(event.request).catch(() => {
-          // Swallow network errors to prevent unhandled promise rejections
-          // In a real app, you might return a fallback image here
+          // Swallow network errors
         });
       })
   );
@@ -41,7 +41,6 @@ self.addEventListener('activate', (event) => {
   const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
     Promise.all([
-      // Claim clients immediately so the new SW controls the page without a reload
       self.clients.claim(),
       caches.keys().then((cacheNames) => {
         return Promise.all(
