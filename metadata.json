@@ -1,0 +1,5 @@
+{
+  "name": "MonoView PWA",
+  "description": "A minimalist Progressive Web Application displaying a single, focused image.",
+  "requestFramePermissions": []
+}
