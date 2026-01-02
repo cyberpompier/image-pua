@@ -1,56 +1,58 @@
-// Simple cache-first strategy for a basic PWA
-const CACHE_NAME = 'monoview-cache-v3';
-const urlsToCache = [
+const CACHE_NAME = 'monoview-v4';
+const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './manifest.json',
-  './icons/logo.svg'
+  './assets/icon.svg'
 ];
 
+// Install event: Cache assets
 self.addEventListener('install', (event) => {
-  // Force the waiting service worker to become the active service worker immediately.
   self.skipWaiting();
-  
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => {
-        return cache.addAll(urlsToCache);
-      })
-      .catch((error) => {
-        console.error('Failed to cache resources during install:', error);
-      })
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(ASSETS_TO_CACHE);
+    })
   );
 });
 
-self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        // Cache hit - return response
-        if (response) {
-          return response;
-        }
-        return fetch(event.request).catch(() => {
-          // Swallow network errors
-        });
-      })
-  );
-});
-
+// Activate event: Clean old caches
 self.addEventListener('activate', (event) => {
-  const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
     Promise.all([
       self.clients.claim(),
       caches.keys().then((cacheNames) => {
         return Promise.all(
           cacheNames.map((cacheName) => {
-            if (cacheWhitelist.indexOf(cacheName) === -1) {
+            if (cacheName !== CACHE_NAME) {
               return caches.delete(cacheName);
             }
           })
         );
       })
     ])
+  );
+});
+
+// Fetch event: Network first, fall back to cache for HTML, Cache first for assets
+self.addEventListener('fetch', (event) => {
+  const url = new URL(event.request.url);
+
+  // For navigation requests (HTML), try network first, then cache
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .catch(() => {
+          return caches.match('./index.html');
+        })
+    );
+    return;
+  }
+
+  // For other requests (Assets), try cache first, then network
+  event.respondWith(
+    caches.match(event.request).then((response) => {
+      return response || fetch(event.request);
+    })
   );
 });

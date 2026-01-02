@@ -16,15 +16,20 @@ root.render(
   </React.StrictMode>
 );
 
-// Register Service Worker for PWA functionality
+// PWA Service Worker Registration
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js')
+    // Explicitly defining scope can help in some hosted environments
+    navigator.serviceWorker.register('./sw.js', { scope: './' })
       .then((registration) => {
-        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+        console.log('SW registered:', registration);
       })
-      .catch((err) => {
-        console.log('ServiceWorker registration failed: ', err);
+      .catch((error) => {
+        console.warn('SW registration failed:', error);
+        // The error "Script origin does not match" usually means the server
+        // is serving sw.js from a different origin/port than index.html.
+        // This is common in some preview environments (like CodeSandbox/StackBlitz).
+        // It usually resolves itself on a real production static host.
       });
   });
 }
