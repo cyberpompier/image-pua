@@ -3,13 +3,13 @@
   "name": "MonoView Image App",
   "icons": [
     {
-      "src": "https://picsum.photos/192/192",
-      "type": "image/jpeg",
+      "src": "https://placehold.co/192x192.png",
+      "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "https://picsum.photos/512/512",
-      "type": "image/jpeg",
+      "src": "https://placehold.co/512x512.png",
+      "type": "image/png",
       "sizes": "512x512"
     }
   ],
